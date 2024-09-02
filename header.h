@@ -15,7 +15,7 @@
 #define SIZE    80
 #define player_size (( 20 * SIZE) /100)
 #define length_direction 25
-#define speed_move  3
+#define speed_move  7
 #define PI 3.14159265359
 #define radian 0.0174532925
 
@@ -50,3 +50,6 @@ typedef struct our_data{
 
     Vector_2D position_player;
 }t_data;
+
+
+void    delete_direction(t_data *info);

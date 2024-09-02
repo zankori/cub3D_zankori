@@ -75,24 +75,45 @@ void    draw_wall(t_data *info)
     
 }
 
-void    draw_direction(t_data *info, char Direction)
+void    draw_direction(t_data *info)
 {
-    int     y;
+    double  x;
+    double  y;
+    double  init_x;
+    double  init_y;
+    int     size;
 
+    init_x = info->position_player.x + (player_size / 2);
+    init_y = info->position_player.y + (player_size / 2);
+    size = player_size / 2;
 
+    while (size < length_direction)
+    {
+        x =  cos(info->angle_player) * size;
+        y = sin(info->angle_player) * size;
+        mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
+        size++;
+    }
+}
+
+void    redraw_player(t_data *info)
+{
+    int x;
+    int y;
+
+    x = 0;
     y = 0;
 
-    while (y < length_direction)
+
+    while (x < player_size)
     {
-        if (Direction == 'N')
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->position_player.x + (player_size / 2) , info->position_player.y - y, 255);
-        else if (Direction == 'S')
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->position_player.x + (player_size / 2) , y + (info->position_player.y + player_size), 255);
-        else if (Direction == 'E')
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, (info->position_player.x + (player_size)) + y , info->position_player.y + (player_size / 2), 255);
-        else if (Direction == 'W')
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->position_player.x - y , info->position_player.y + (player_size / 2), 255);
-        y++;
+        y = 0;
+        while (y < player_size)
+        {
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y , 16776960);
+            y++;
+        }
+        x++;
     }
 }
 
@@ -133,7 +154,7 @@ void    draw_player(t_data *info, char Direction)
         x++;
     }
     init_angle_player(info, Direction);
-    draw_direction(info, Direction);
+    draw_direction(info);
 
 }
 
@@ -326,6 +347,29 @@ void    move_left(t_data *info)
     // --- //
 }
 
+void    delete_direction(t_data *info)
+{
+    double  x;
+    double  y;
+    double  init_x;
+    double  init_y;
+    int     size;
+
+    init_x = info->position_player.x + (player_size / 2);
+    init_y = info->position_player.y + (player_size / 2);
+    size = player_size / 2;
+
+    while (size < length_direction)
+    {
+        x =  cos(info->angle_player) * size;
+        y = sin(info->angle_player) * size;
+        mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 0);
+        size++;
+    }
+    redraw_player(info);
+
+
+}
 
 void    left_rotate(t_data *info)
 {  
@@ -336,10 +380,12 @@ void    left_rotate(t_data *info)
     double  init_y;
     int     size;
 
+    delete_direction(info);
+
     info->angle_player -= 0.1;
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
-    size = 0;
+    size = player_size / 2;
 
     while (size < length_direction)
     {
@@ -361,10 +407,12 @@ void    right_rotate(t_data *info)
     double  init_y;
     int     size;
 
+    delete_direction(info);
+
     info->angle_player += 0.1;
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
-    size = 0;
+    size = player_size / 2;
 
     while (size < length_direction)
     {
@@ -382,19 +430,27 @@ int     move(int key_pressed, t_data *info)
 {
     if (key_pressed == KEY_W)
     {
+        delete_direction(info);
         move_up(info);
+        draw_direction(info);
     }
     else if (key_pressed == KEY_S)
     {
+        delete_direction(info);
         move_down(info);
+        draw_direction(info);
     }
     else if (key_pressed == KEY_D)
     {
+        delete_direction(info);
         move_right(info);
+        draw_direction(info);
     }
     else if (key_pressed == KEY_A)
     {
+        delete_direction(info);
         move_left(info);
+        draw_direction(info);
     }
     else if (key_pressed == KEY_LEFT)
     {
