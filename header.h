@@ -12,9 +12,13 @@
 
 #define WIDTH 1280
 #define LENGTH 720
-#define SIZE    40
+#define SIZE    80
 #define player_size (( 20 * SIZE) /100)
+#define length_direction 25
 #define speed_move  3
+#define PI 3.14159265359
+#define radian 0.0174532925
+
 # define ESC 65307
 # define KEY_UP 65362
 # define KEY_DOWN 65364
@@ -41,6 +45,8 @@ typedef struct our_data{
 
     void    *mlx_cnx;
     void    *mlx_win;
+
+    double     angle_player;
 
     Vector_2D position_player;
 }t_data;

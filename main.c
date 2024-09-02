@@ -75,7 +75,41 @@ void    draw_wall(t_data *info)
     
 }
 
-void    draw_player(t_data *info)
+void    draw_direction(t_data *info, char Direction)
+{
+    int     y;
+
+
+    y = 0;
+
+    while (y < length_direction)
+    {
+        if (Direction == 'N')
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->position_player.x + (player_size / 2) , info->position_player.y - y, 255);
+        else if (Direction == 'S')
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->position_player.x + (player_size / 2) , y + (info->position_player.y + player_size), 255);
+        else if (Direction == 'E')
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, (info->position_player.x + (player_size)) + y , info->position_player.y + (player_size / 2), 255);
+        else if (Direction == 'W')
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->position_player.x - y , info->position_player.y + (player_size / 2), 255);
+        y++;
+    }
+}
+
+void    init_angle_player(t_data *info, char Direction)
+{
+    if (Direction == 'N')
+        info->angle_player = 90 * radian;
+    else if (Direction == 'S')
+        info->angle_player = 270 * radian;
+    else if (Direction == 'E')
+        info->angle_player = 0;
+    else if (Direction == 'W')
+        info->angle_player = 180 * radian;
+
+}
+
+void    draw_player(t_data *info, char Direction)
 {
     int x;
     int y;
@@ -98,6 +132,8 @@ void    draw_player(t_data *info)
         }
         x++;
     }
+    init_angle_player(info, Direction);
+    draw_direction(info, Direction);
 
 }
 
@@ -115,8 +151,9 @@ void    draw_map(t_data *info)
         {
             if (info->map[i][j] == '1')
                 draw_wall(info);
-            else if (info->map[i][j] == 'N')
-                draw_player(info);
+            else if (info->map[i][j] == 'N' || info->map[i][j] == 'W' 
+            || info->map[i][j] == 'E' || info->map[i][j] == 'S')
+                draw_player(info, info->map[i][j]);
             j++;
             info->place_x += SIZE;
         }
@@ -289,6 +326,58 @@ void    move_left(t_data *info)
     // --- //
 }
 
+
+void    left_rotate(t_data *info)
+{  
+
+    double  x;
+    double  y;
+    double  init_x;
+    double  init_y;
+    int     size;
+
+    info->angle_player -= 0.1;
+    init_x = info->position_player.x + (player_size / 2);
+    init_y = info->position_player.y + (player_size / 2);
+    size = 0;
+
+    while (size < length_direction)
+    {
+        x =  cos(info->angle_player) * size;
+        y = sin(info->angle_player) * size;
+        mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
+        size++;
+    }
+
+
+}
+
+void    right_rotate(t_data *info)
+{  
+
+    double  x;
+    double  y;
+    double  init_x;
+    double  init_y;
+    int     size;
+
+    info->angle_player += 0.1;
+    init_x = info->position_player.x + (player_size / 2);
+    init_y = info->position_player.y + (player_size / 2);
+    size = 0;
+
+    while (size < length_direction)
+    {
+        x =  cos(info->angle_player) * size;
+        y = sin(info->angle_player) * size;
+        mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
+        size++;
+    }
+
+
+}
+
+
 int     move(int key_pressed, t_data *info)
 {
     if (key_pressed == KEY_W)
@@ -306,6 +395,14 @@ int     move(int key_pressed, t_data *info)
     else if (key_pressed == KEY_A)
     {
         move_left(info);
+    }
+    else if (key_pressed == KEY_LEFT)
+    {
+        left_rotate(info);
+    }
+    else if (key_pressed == KEY_RIGHT)
+    {
+        right_rotate(info);
     }
     return (0);
 }
@@ -330,3 +427,6 @@ int main(int argc, char **argv)
 
 
 }
+
+// 1 : rotation . 
+// 2 : ray-casting (rendering map 2D) .
