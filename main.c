@@ -191,46 +191,38 @@ void    inti(t_data *info)
     info->place_y = 0;
 }
 
-void    move_up(t_data *info)
+void    calculte_new_position(t_data *info, char Direction)
 {
-    int     x;
-    int     y;
+    double x;
+    double y;
 
-    x = 0;
-    y = 0;
+    x = cos(info->angle_player) * speed_move;
+    y = sin(info->angle_player) * speed_move;
 
-    // task 1 : replace player by a empty . 
-   while (x < player_size)
+    if (Direction == 'N')
     {
-        y = 0;
-        while (y < player_size)
-        {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y, 0);
-            y++;
-        }
-        x++;
+        info->position_player.x += x; 
+        info->position_player.y += y; 
     }
-    // --- //
-    // task 2 : add speed movement of the player to his place .
-    info->position_player.y -= speed_move; 
-    // -- //
-    // task 3 : draw player in his new place .
-    x = 0;
-    y = 0;
-    while (x < player_size)
+    else if (Direction == 'S')
     {
-        y = 0;
-        while (y < player_size)
-        {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y, 16776960);
-            y++;
-        }
-        x++;
+        info->position_player.x -= x; 
+        info->position_player.y -= y; 
     }
-    // --- //
+    else if (Direction == 'E')
+    {
+        // info->position_player.x += x; 
+        // info->position_player.y += y; 
+    }
+    else if (Direction == 'W')
+    {
+        // info->position_player.x -= x; 
+        // info->position_player.y += y; 
+    }
+   
 }
 
-void    move_down(t_data *info)
+void    do_move(t_data *info, char Direction)
 {
     int     x;
     int     y;
@@ -249,11 +241,13 @@ void    move_down(t_data *info)
         }
         x++;
     }
-    // --- //
+    // --//
     // task 2 : add speed movement of the player to his place .
-    info->position_player.y += speed_move; 
+    calculte_new_position(info, Direction);
+
     // -- //
     // task 3 : draw player in his new place .
+    // --- //
     x = 0;
     y = 0;
     while (x < player_size)
@@ -269,83 +263,8 @@ void    move_down(t_data *info)
     // --- //
 }
 
-void    move_right(t_data *info)
-{
-    int     x;
-    int     y;
 
-    x = 0;
-    y = 0;
 
-    // task 1 : replace player by a empty . 
-   while (x < player_size)
-    {
-        y = 0;
-        while (y < player_size)
-        {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y, 0);
-            y++;
-        }
-        x++;
-    }
-    // --- //
-    // task 2 : add speed movement of the player to his place .
-    info->position_player.x += speed_move; 
-    // -- //
-    // task 3 : draw player in his new place .
-    x = 0;
-    y = 0;
-    while (x < player_size)
-    {
-        y = 0;
-        while (y < player_size)
-        {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y, 16776960);
-            y++;
-        }
-        x++;
-    }
-    // --- //
-}
-
-void    move_left(t_data *info)
-{
-    int     x;
-    int     y;
-
-    x = 0;
-    y = 0;
-
-    // task 1 : replace player by a empty . 
-   while (x < player_size)
-    {
-        y = 0;
-        while (y < player_size)
-        {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y, 0);
-            y++;
-        }
-        x++;
-    }
-    // --- //
-    // task 2 : add speed movement of the player to his place .
-    info->position_player.x -= speed_move; 
-    // -- //
-    // task 3 : draw player in his new place .
-    x = 0;
-    y = 0;
-    while (x < player_size)
-    {
-        y = 0;
-        while (y < player_size)
-        {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x + info->position_player.x, y + info->position_player.y, 16776960);
-            y++;
-        }
-        x++;
-    }
-    // --- //
-}
 
 void    delete_direction(t_data *info)
 {
@@ -382,7 +301,7 @@ void    left_rotate(t_data *info)
 
     delete_direction(info);
 
-    info->angle_player -= 0.1;
+    info->angle_player -= speed_rotate;
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
@@ -409,7 +328,7 @@ void    right_rotate(t_data *info)
 
     delete_direction(info);
 
-    info->angle_player += 0.1;
+    info->angle_player += speed_rotate;
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
@@ -431,25 +350,25 @@ int     move(int key_pressed, t_data *info)
     if (key_pressed == KEY_W)
     {
         delete_direction(info);
-        move_up(info);
+        do_move(info, 'N');
         draw_direction(info);
     }
     else if (key_pressed == KEY_S)
     {
         delete_direction(info);
-        move_down(info);
+        do_move(info, 'S');
         draw_direction(info);
     }
     else if (key_pressed == KEY_D)
     {
         delete_direction(info);
-        move_right(info);
+        do_move(info, 'E');
         draw_direction(info);
     }
     else if (key_pressed == KEY_A)
     {
         delete_direction(info);
-        move_left(info);
+        do_move(info, 'W');
         draw_direction(info);
     }
     else if (key_pressed == KEY_LEFT)

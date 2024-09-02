@@ -14,10 +14,11 @@
 #define LENGTH 720
 #define SIZE    80
 #define player_size (( 20 * SIZE) /100)
-#define length_direction 25
-#define speed_move  7
+#define length_direction 50
+#define speed_move  6
 #define PI 3.14159265359
 #define radian 0.0174532925
+#define speed_rotate 0.05
 
 # define ESC 65307
 # define KEY_UP 65362
