@@ -193,8 +193,8 @@ void    inti(t_data *info)
 
 void    calculte_new_position(t_data *info, char Direction)
 {
-    double x;
-    double y;
+    int x;
+    int y;
 
     x = cos(info->angle_player) * speed_move;
     y = sin(info->angle_player) * speed_move;
@@ -211,15 +211,18 @@ void    calculte_new_position(t_data *info, char Direction)
     }
     else if (Direction == 'E')
     {
-        // info->position_player.x += x; 
-        // info->position_player.y += y; 
+        x = cos(info->angle_player  + (PI / 2)) * speed_move;
+        y = sin(info->angle_player  + (PI / 2)) * speed_move;
+        info->position_player.x += x; 
+        info->position_player.y += y; 
     }
     else if (Direction == 'W')
     {
-        // info->position_player.x -= x; 
-        // info->position_player.y += y; 
+        x = cos(info->angle_player  - (PI / 2)) * speed_move;
+        y = sin(info->angle_player  - (PI / 2)) * speed_move;
+        info->position_player.x += x; 
+        info->position_player.y += y; 
     }
-   
 }
 
 void    do_move(t_data *info, char Direction)
@@ -300,8 +303,10 @@ void    left_rotate(t_data *info)
     int     size;
 
     delete_direction(info);
-
+                                                                                                                                                                                         
     info->angle_player -= speed_rotate;
+    if (info->angle_player < 0)
+        info->angle_player += 2 * PI;
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
@@ -329,6 +334,8 @@ void    right_rotate(t_data *info)
     delete_direction(info);
 
     info->angle_player += speed_rotate;
+    if (info->angle_player > (2 * PI))
+        info->angle_player -= 2 * PI;
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
@@ -403,5 +410,4 @@ int main(int argc, char **argv)
 
 }
 
-// 1 : rotation . 
 // 2 : ray-casting (rendering map 2D) .
