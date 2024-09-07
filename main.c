@@ -12,10 +12,10 @@ char    **store_map(char **argv, t_data *info)
     str = get_next_line(fd);
     while (str)
     {
-        free(str);
         if (store < strlen(str))
             store = strlen(str);
         i++;
+        free(str);
         str = get_next_line(fd); 
     }
 
@@ -80,6 +80,50 @@ void    draw_wall(t_data *info)
 }
 
 
+void    check_hit_wall(t_data *info, int *hit_wall, int all_x, int all_y)
+{
+            int i = 0;
+            int j = 0;
+            int place_x = 0;
+            int place_y = 0;
+            int x_te = 0;
+            int y_te = 0;
+
+            while (info->map[i])
+            {
+                j = 0;
+                while (info->map[i][j])
+                {
+                    x_te = 0;
+                    y_te = 0;
+
+                    while (x_te < SIZE + 1)
+                    {
+                        y_te = 0;
+                        while (y_te < SIZE + 1)
+                        {
+                            if (place_x + x_te == all_x && place_y + y_te == all_y)
+                            {
+                                if (info->map[i][j] == '1')
+                                {
+                                    *hit_wall = 1;
+                                    return ;
+                                }
+                            }
+                            y_te++;
+                        }
+                        x_te++;
+                    }
+                    j++;
+                    place_x += SIZE;
+                }
+                i++;
+                place_x = 0;
+                place_y += SIZE;
+            }
+
+}
+
 void    draw_direction(t_data *info)
 {
     double  x;
@@ -87,17 +131,26 @@ void    draw_direction(t_data *info)
     double  init_x;
     double  init_y;
     int     size;
+    int     hit_wall;
 
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
 
-    while (size < length_direction)
+    hit_wall = 0;
+    
+    while (hit_wall == 0)
     {
         x =  cos(info->angle_player) * size;
         y = sin(info->angle_player) * size;
         mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
         size++;
+
+
+        // check wall 
+        if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
+            check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+
     }
 }
 
@@ -341,17 +394,24 @@ void    delete_direction(t_data *info)
     double  init_x;
     double  init_y;
     int     size;
+    int     hit_wall;
 
     init_x = info->position_player.x + (player_size / 2);
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
-
-    while (size < length_direction)
+    hit_wall = 0;
+    while (hit_wall == 0)
     {
         x =  cos(info->angle_player) * size;
         y = sin(info->angle_player) * size;
         mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 0);
         size++;
+        
+         // check wall 
+        if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
+            check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+
+
     }
     redraw_player(info);
 
@@ -366,10 +426,11 @@ void    left_rotate(t_data *info)
     double  init_x;
     double  init_y;
     int     size;
+    int     hit_wall;
 
     delete_direction(info);
     redraw_map(info, 0);
-                                                                                                                                                                                         
+                                                                                                                                                                                     
     info->angle_player -= speed_rotate;
     if (info->angle_player < 0)
         info->angle_player += 2 * PI;
@@ -377,12 +438,17 @@ void    left_rotate(t_data *info)
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
 
-    while (size < length_direction)
+    hit_wall = 0;
+    while (hit_wall == 0)
     {
         x =  cos(info->angle_player) * size;
         y = sin(info->angle_player) * size;
         mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
         size++;
+         // check wall 
+        if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
+            check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+
     }
 
 
@@ -396,6 +462,7 @@ void    right_rotate(t_data *info)
     double  init_x;
     double  init_y;
     int     size;
+    int     hit_wall;
 
     delete_direction(info);
     redraw_map(info, 0);
@@ -407,12 +474,17 @@ void    right_rotate(t_data *info)
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
 
-    while (size < length_direction)
+    hit_wall = 0;
+    while (hit_wall == 0)
     {
         x =  cos(info->angle_player) * size;
         y = sin(info->angle_player) * size;
         mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
         size++;
+        // check wall 
+        if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
+            check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+
     }
 
 
