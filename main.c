@@ -62,18 +62,23 @@ void    draw_wall(t_data *info)
 
     x = 0;
     y = 0;
-    while (x < SIZE)
+    while (x < SIZE + 1)
     {
         y = 0;
-        while (y < SIZE)
+        while (y < SIZE + 1)
         {
-            mlx_pixel_put(info->mlx_cnx, info->mlx_win, x +info->place_x, y + info->place_y, 16777215);
+            if ((x + info->place_x) % SIZE == 0 || (y + info->place_y) % SIZE == 0)
+                mlx_pixel_put(info->mlx_cnx, info->mlx_win, x +info->place_x, y + info->place_y, 255);
+            else
+                mlx_pixel_put(info->mlx_cnx, info->mlx_win, x +info->place_x, y + info->place_y, 19321);
             y++;
         }
         x++;
     }
+
     
 }
+
 
 void    draw_direction(t_data *info)
 {
@@ -158,6 +163,26 @@ void    draw_player(t_data *info, char Direction)
 
 }
 
+void    draw_line_in_empty(t_data *info)
+{
+    int x;
+    int y;
+
+    x = 0;
+    y = 0;
+    while (x < SIZE + 1)
+    {
+        y = 0;
+        while (y < SIZE + 1)
+        {
+            if ((x + info->place_x) % SIZE == 0 || (y + info->place_y) % SIZE == 0)
+                mlx_pixel_put(info->mlx_cnx, info->mlx_win, x +info->place_x, y + info->place_y, 255);
+            y++;
+        }
+        x++;
+    }
+}
+
 void    draw_map(t_data *info)
 {
     int     i;
@@ -175,6 +200,8 @@ void    draw_map(t_data *info)
             else if (info->map[i][j] == 'N' || info->map[i][j] == 'W' 
             || info->map[i][j] == 'E' || info->map[i][j] == 'S')
                 draw_player(info, info->map[i][j]);
+            else if (info->map[i][j] == '0')
+                draw_line_in_empty(info);
             j++;
             info->place_x += SIZE;
         }
@@ -225,6 +252,42 @@ void    calculte_new_position(t_data *info, char Direction)
     }
 }
 
+void    redraw_map(t_data *info, int flag_player_is_move)
+{
+    int     i;
+    int     j;
+
+    info->place_x = 0;
+    info->place_y = 0;
+    i = 0;
+    j = 0;
+    while (info->map[i])
+    {
+        j = 0;
+        while (info->map[i][j])
+        {
+            if (flag_player_is_move == 1)
+            {
+                if (info->map[i][j] == '0')
+                    draw_line_in_empty(info);
+            }
+            else
+            {
+                if (info->map[i][j] == '1')
+                    draw_wall(info);
+                else if (info->map[i][j] == '0')
+                    draw_line_in_empty(info);
+            }
+            j++;
+            info->place_x += SIZE;
+        }
+        i++;
+        info->place_x = 0;
+        info->place_y += SIZE;
+    }
+
+}
+
 void    do_move(t_data *info, char Direction)
 {
     int     x;
@@ -234,6 +297,7 @@ void    do_move(t_data *info, char Direction)
     y = 0;
 
     // task 1 : replace player by a empty . 
+
     while (x < player_size)
     {
         y = 0;
@@ -244,6 +308,7 @@ void    do_move(t_data *info, char Direction)
         }
         x++;
     }
+    redraw_map(info, 1);
     // --//
     // task 2 : add speed movement of the player to his place .
     calculte_new_position(info, Direction);
@@ -303,6 +368,7 @@ void    left_rotate(t_data *info)
     int     size;
 
     delete_direction(info);
+    redraw_map(info, 0);
                                                                                                                                                                                          
     info->angle_player -= speed_rotate;
     if (info->angle_player < 0)
@@ -332,6 +398,7 @@ void    right_rotate(t_data *info)
     int     size;
 
     delete_direction(info);
+    redraw_map(info, 0);
 
     info->angle_player += speed_rotate;
     if (info->angle_player > (2 * PI))
@@ -357,24 +424,28 @@ int     move(int key_pressed, t_data *info)
     if (key_pressed == KEY_W)
     {
         delete_direction(info);
+        redraw_map(info, 0);
         do_move(info, 'N');
         draw_direction(info);
     }
     else if (key_pressed == KEY_S)
     {
         delete_direction(info);
+        redraw_map(info, 0);
         do_move(info, 'S');
         draw_direction(info);
     }
     else if (key_pressed == KEY_D)
     {
         delete_direction(info);
+        redraw_map(info, 0);
         do_move(info, 'E');
         draw_direction(info);
     }
     else if (key_pressed == KEY_A)
     {
         delete_direction(info);
+        redraw_map(info, 0);
         do_move(info, 'W');
         draw_direction(info);
     }
