@@ -19,6 +19,8 @@
 #define PI 3.14159265359
 #define radian 0.0174532925
 #define speed_rotate 0.05
+#define ray_casting_angle 0.01
+
 
 # define ESC 65307
 # define KEY_UP 65362
@@ -49,8 +51,13 @@ typedef struct our_data{
 
     double     angle_player;
 
+    int     distance;
+    int     height_wall;
+
+    Vector_2D position_wall;
     Vector_2D position_player;
 }t_data;
 
 
 void    delete_direction(t_data *info);
+void    ray_casting(t_data *info);
