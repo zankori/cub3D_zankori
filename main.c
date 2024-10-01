@@ -80,7 +80,7 @@ void    draw_wall(t_data *info)
 }
 
 
-void    check_hit_wall(t_data *info, int *hit_wall, int all_x, int all_y)
+void    check_hit_wall(t_data *info, int *hit_wall, int all_x, int all_y, int delete)
 {
             int i = 0;
             int j = 0;
@@ -110,8 +110,10 @@ void    check_hit_wall(t_data *info, int *hit_wall, int all_x, int all_y)
                                     // set position wall
                                     info->position_wall.x = all_x;
                                     info->position_wall.y = all_y;
-                                    // --- //
-                                    // ray_casting(info);
+
+                                    // ---  //
+
+                                    ray_casting(info, delete);
                                     return ;
                                 }
                             }
@@ -129,20 +131,32 @@ void    check_hit_wall(t_data *info, int *hit_wall, int all_x, int all_y)
 
 }
 
-void    ray_casting(t_data *info)
+void    ray_casting(t_data *info, int delete)
 {
 
     info->distance = sqrt(pow(abs(info->position_wall.y - info->position_player.y), 2)
                         + pow(abs(info->position_wall.x - info->position_player.x), 2));
     
-    // printf("distance =  %d" ,info->distance);
+    double distance_projection_wall = WIDTH / tan(PI / 3);
 
-    info->height_wall = tan(info->angle_player) * info->distance;
-    if (info->height_wall > LENGTH)
-        info->height_wall = LENGTH;
-    else if (info->height_wall <= 0)
-        info->height_wall = 1;
-    // printf(" ---  height_wall = %d\n", info->height_wall);
+    info->height_wall = (distance_projection_wall * SIZE) / info->distance;
+
+    int y_test = (LENGTH - info->height_wall) / 2;
+
+
+
+    int y = 0;
+    int x = 0;
+
+    info->num_ray += 1;
+    while (y < info->height_wall)
+    {
+        if (delete == 1)
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->num_ray , y + y_test , 0);
+        else
+            mlx_pixel_put(info->mlx_cnx, info->mlx_win, info->num_ray , y + y_test , 19321);
+        y++;
+    }
 }
 
 void    draw_direction(t_data *info)
@@ -163,53 +177,54 @@ void    draw_direction(t_data *info)
     
     
     
-    double angle = info->angle_player;
+     info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle <= info->angle_player + (PI / 6))
+    while (info->angle_change <= info->angle_player + (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 0);
 
         }
-        angle += ray_casting_angle;
+        info->angle_change += ray_casting_angle;
     }
 
 
 
 
 
-    angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle >= info->angle_player - (PI / 6))
+    while (info->angle_change >= info->angle_player - (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 0);
 
         }
-        angle -= ray_casting_angle;
+        info->angle_change -= ray_casting_angle;
     }
+    info->num_ray = 0;
     
 }
 
@@ -328,6 +343,7 @@ void    inti(t_data *info)
 {
     info->place_x = 0;
     info->place_y = 0;
+    info->num_ray = 0;
 }
 
 void    calculte_new_position(t_data *info, char Direction)
@@ -464,52 +480,52 @@ void    delete_direction(t_data *info)
     
     
 
-    double angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle <= info->angle_player + (PI / 6))
+    while (info->angle_change <= info->angle_player + (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 0);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 1);
 
         }
-        angle += ray_casting_angle;
+        info->angle_change += ray_casting_angle;
     }
 
 
 
-    angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle >= info->angle_player - (PI / 6))
+    while (info->angle_change >= info->angle_player - (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 0);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 1);
 
         }
-        angle -= ray_casting_angle;
+        info->angle_change -= ray_casting_angle;
     }
-
+    info->num_ray = 0;
     redraw_player(info);
 
 
@@ -538,50 +554,51 @@ void    left_rotate(t_data *info)
 
 
 
-    double angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle <= info->angle_player + (PI / 6))
+    while (info->angle_change <= info->angle_player + (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 0);
 
         }
-        angle += ray_casting_angle;
+        info->angle_change += ray_casting_angle;
     }
 
 
-    angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle >= info->angle_player - (PI / 6))
+    while (info->angle_change >= info->angle_player - (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 0);
 
         }
-        angle -= ray_casting_angle;
+        info->angle_change -= ray_casting_angle;
     }
+    info->num_ray = 0;
 
 
 }
@@ -606,51 +623,51 @@ void    right_rotate(t_data *info)
     init_y = info->position_player.y + (player_size / 2);
     size = player_size / 2;
 
-    double angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle <= info->angle_player + (PI / 6))
+    while (info->angle_change <= info->angle_player + (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 0);
 
         }
-        angle += ray_casting_angle;
+        info->angle_change += ray_casting_angle;
     }
 
 
-    angle = info->angle_player;
+    info->angle_change = info->angle_player;
     hit_wall = 0;
-    while (angle >= info->angle_player - (PI / 6))
+    while (info->angle_change >= info->angle_player - (PI / 6))
     {
         hit_wall = 0;
         size = player_size / 2;
         while (hit_wall == 0)
         {
-            x =  cos(angle) * size;
-            y = sin(angle) * size;
+            x =  cos(info->angle_change) * size;
+            y = sin(info->angle_change) * size;
             mlx_pixel_put(info->mlx_cnx, info->mlx_win,  init_x  + x, init_y + y , 16711680);
             size++;
 
 
             // check wall 
             if ( (int)(x + init_x) % SIZE == 0 || (int)(y + init_y) % SIZE == 0)
-                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y));
+                check_hit_wall(info, &hit_wall, (int)(init_x + x), (int)(init_y + y), 0);
 
         }
-        angle -= ray_casting_angle;
+        info->angle_change -= ray_casting_angle;
     }
-
+    info->num_ray = 0;
 
 
 }

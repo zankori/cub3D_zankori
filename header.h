@@ -12,14 +12,14 @@
 
 #define WIDTH 1280
 #define LENGTH 720
-#define SIZE    80
+#define SIZE    10
 #define player_size (( 20 * SIZE) /100)
 #define length_direction 50
 #define speed_move  6
 #define PI 3.14159265359
 #define radian 0.0174532925
 #define speed_rotate 0.05
-#define ray_casting_angle 0.01
+#define ray_casting_angle 0.001
 
 
 # define ESC 65307
@@ -33,10 +33,17 @@
 # define KEY_A 97
 # define KEY_Q 113
 
+# define GREEN "\033[0;32m"
+# define RED "\033[1;31m"
+# define GREY "\033[0;90m"
+
+
 typedef struct vector{
     int     x;
     int     y;
 }Vector_2D;
+
+
 
 typedef struct our_data{
     char    **map;
@@ -54,10 +61,16 @@ typedef struct our_data{
     int     distance;
     int     height_wall;
 
+    double  angle_change;
+
+
+
+    double num_ray;
+
     Vector_2D position_wall;
     Vector_2D position_player;
 }t_data;
 
 
 void    delete_direction(t_data *info);
-void    ray_casting(t_data *info);
+void    ray_casting(t_data *info, int delete);
